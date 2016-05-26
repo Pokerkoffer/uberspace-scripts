@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.7
+# coding=utf-8
 import csv
 import getopt
 import pprint
@@ -11,7 +12,7 @@ from subprocess import Popen, PIPE, STDOUT
 # inputformat:  createMailbox -l list.csv -q 5 -Q 10
 #               createMailbox --list list.csv --softquota 5 --hardquota 10
 
-# list.csv: username, password, first_name, last_name
+# list.csv: first_name, last_name, password,
 
 # regex_user_already_exists = "error: user '[^']+' already exists\."
 regex_user_created = "vadduser: user '[^']+' successfully added"
@@ -33,8 +34,19 @@ def user_exist(username):
     return m is not None
 
 
-def create_user(username, password, first_name, last_name, softquota, hardquota):
+def normalize_name(name):
+    name = str.lower(name)
+    name = str.replace(name, "ä", "ae")
+    name = str.replace(name, "ö", "oe")
+    name = str.replace(name, "ü", "ue")
+    name = str.replace(name, "ß", "ss")
+    return name
+
+
+def create_user(first_name, last_name, password, softquota, hardquota):
     # create user via vadduser
+
+    username = normalize_name(first_name) + "." + normalize_name(last_name)
     if user_exist(username):
         print "User '" + username + "' already exists. Skipping."
         return
@@ -56,8 +68,6 @@ def create_user(username, password, first_name, last_name, softquota, hardquota)
         print "ERROR opening process"
     return False
 
-def set_roundcube_identity(first_name, last_name)
-
 
 def create_user_bulk(csv_file, softquota, hardquota):
     csv_file = open(csv_file)
@@ -65,7 +75,7 @@ def create_user_bulk(csv_file, softquota, hardquota):
 
     accounts_added = 0
     for acc in accreader:
-        if create_user(acc['username'], acc['password'], acc['first_name'], acc['last_name'], softquota, hardquota):
+        if create_user(acc['first_name'], acc['last_name'], acc['password'], softquota, hardquota):
             accounts_added += 1
 
     print str(accounts_added) + " accounts added."
