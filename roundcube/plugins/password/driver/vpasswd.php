@@ -5,7 +5,6 @@ class rcube_vpasswd_password
     {
         $username = $_SESSION['username'];
         $username = explode('@', $username)[0];
-        print $username;
         $handle = popen('vpasswd '.$username.' 2>&1', 'w');
         fwrite($handle, $newpass."\n");
         fwrite($handle, $newpass."\n");
