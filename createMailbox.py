@@ -8,7 +8,7 @@ import sys
 
 from subprocess import Popen, PIPE, STDOUT
 
-# adds user to vmailmgr via vadduser and sets default identity in roundcube
+# adds user to vmailmgr via vadduser
 # inputformat:  createMailbox -l list.csv -q 5 -Q 10
 #               createMailbox --list list.csv --softquota 5 --hardquota 10
 
