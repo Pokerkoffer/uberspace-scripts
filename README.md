@@ -22,4 +22,4 @@ Example:  ```createMailbox.py -l list.csv -q 5 -Q 10```
 Example 2: ```createMailbox.py --list list.csv --softquota 5 --hardquota 10```  
 
 ##### CSV File format:
-username, password, first_name, last_name
+password, first_name, last_name
