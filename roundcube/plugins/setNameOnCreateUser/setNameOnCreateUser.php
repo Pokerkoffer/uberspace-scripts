@@ -5,7 +5,6 @@ class setNameOnCreateUser extends rcube_plugin
 
     function init()
     {
-        error_reporting(E_ERROR);
         $this->add_hook('user_create', array($this, 'user_created'));
     }
 
