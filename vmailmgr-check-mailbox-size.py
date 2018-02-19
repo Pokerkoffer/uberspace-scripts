@@ -106,7 +106,9 @@ def main(args):
     print(username_list)
     for username in username_list:
         user_info = get_vuser_info(username)
+        print("userinfo:")
         print(user_info)
+        print("dir:")
         print(args.dir)
         quota_exceeded = is_softquota_exceeded(user_info, args.dir)
         print("urrent user: " + user_info['Name'])
