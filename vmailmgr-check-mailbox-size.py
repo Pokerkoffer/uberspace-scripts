@@ -67,7 +67,7 @@ def get_vuser_info(username):
     # Has-Mailbox: false
     # Mailbox-Enabled: true
 
-    r = subprocess.run(['dumpvuser', 'admin'], stdout=subprocess.PIPE)
+    r = subprocess.run(['dumpvuser', username], stdout=subprocess.PIPE)
     r = (r.stdout.decode('utf8'))
     print(r)
     # get single attributes
