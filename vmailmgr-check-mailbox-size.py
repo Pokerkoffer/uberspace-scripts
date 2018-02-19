@@ -35,7 +35,11 @@ def get_vmailmgr_user_list():
     # User Mailbox Aliases\n
     # timo Yes time@tester.de\n
 
-    result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE)
+    result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    err = result.stderr.decode('utf8')
+    if err:
+        print(err)
+        exit(1)
     # split lines
     result = str(result.stdout)
     result = result.split('\n')
@@ -99,6 +103,7 @@ def main(args):
     # get all vmailmgr accounts listvdomain
     username_list = get_vmailmgr_user_list()
     print("inmain")
+    print(username_list)
     for username in username_list:
         user_info = get_vuser_info(username)
         quota_exceeded = is_softquota_exceeded(user_info)
