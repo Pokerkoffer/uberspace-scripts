@@ -75,7 +75,7 @@ def dump_vuser(username):
     # create dictionary
     attributes = {key: value for (key, value) in entries}
     print(attributes)
-
+    print(attributes['Name'])
     return attributes
 
 
