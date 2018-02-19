@@ -78,12 +78,13 @@ def get_vuser_info(username):
     entries = [e.split(' ', 1) for e in r]
     #print(entries)
     # create dictionary
-    atts = {str(key.replace(':', '')): value for (key, value) in entries}
+    dic = {str(key.replace(':', '')): value for (key, value) in entries}
 
     # convert numbers
     fields_to_convert = ['Hard-Quota', 'Soft-Quota', 'Message-Size-Limit', 'Message-Count-Limit']
-    convert_fields_to_int(atts, fields_to_convert)
-    return atts
+    convert_fields_to_int(dic, fields_to_convert)
+    dic['Directory'] = os.path.basename(dic['Directory'])
+    return dic
 
 
 def convert_fields_to_int(dic, keys):
