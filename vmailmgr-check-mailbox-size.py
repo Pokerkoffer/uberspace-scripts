@@ -97,6 +97,7 @@ def convert_to_int(val):
 
 def main(args):
     # get all vmailmgr accounts listvdomain
+    print("inmain")
     username_list = get_vmailmgr_user_list()
     for username in username_list:
         user_info = get_vuser_info(username)
