@@ -130,8 +130,6 @@ def get_folder_size(folder):
 
 
 def is_softquota_exceeded(user_info, user_dir_root):
-    print(user_dir_root)
-    print(user_dir_root + user_info['Directory'])
     dir_size = get_folder_size(os.path.join(user_dir_root, user_info['Directory']))
     return dir_size > user_info['Soft-Quota']
 
@@ -143,11 +141,11 @@ def write_logfile():
     logfile.write(time)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":„
     parser = argparse.ArgumentParser(description='Help')
-    parser.add_argument('-f', '--file', metavar='path', nargs=1, required=True, type=argparse.FileType('r'),
+    parser.add_argument('-f', '--file', metavar='path', required=True, type=argparse.FileType('r'),
                         help='The file with the warning message')
-    parser.add_argument('-d', '--dir', metavar='dir', nargs=1, required=True,
+    parser.add_argument('-d', '--dir', metavar='dir', required=True,
                         type=PathType.PathType(exists=True, type='dir'),
                         help='The vmailmgrs user directory')
 
