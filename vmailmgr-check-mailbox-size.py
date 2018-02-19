@@ -1,5 +1,7 @@
 import argparse
+import ntpath
 import os
+import re
 import sys
 import subprocess
 import datetime
@@ -28,27 +30,56 @@ def get_quota_sizes(dir):
     return [entry for entry in dirs if os.path.isdir(os.path.join(dir, entry))]
 
 
-def get_vmailmgr_users():
+def get_vmailmgr_user_list():
     result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE)
+    # structure:
+    # User Mailbox Aliases\n
+    # timo Yes time@tester.de\n
+
+    # split lines
     result = str(result.stdout).split('\\n')
-    print("AFTER SPLIT")
-    print(repr(result))
-    #result = result.split(' ')
+    # split spaces
     result = [entry.split(' ') for entry in result]    
-    print("AFTER LEER SPLIT")
-    print(repr(result))
-    result = [e for e in result if len(e) > 1 and e[1] == 'Yes']    
-    print("AFTER YES")
-    print(repr(result))
+    # get only users with mailbox
+    result = [e for e in result if len(e) > 1 and e[1] == 'Yes']
+    # get only names
     result = [e[0] for e in result]
-    result = result[1:]
-    print(repr(result))
-    return result[0]
+    return result
+
+
+def dump_vuser(username):
+    # $dumpvuser admin
+    # Name: admin
+    # Encrypted-Password: *
+    # Directory: ./u/admin
+    # Forward: admin@admin.de
+    # Hard-Quota: N/A
+    # Soft-Quota: N/A
+    # Message-Size-Limit: N/A
+    # Message-Count-Limit: N/A
+    # Creation-Time: 0123456789
+    # Expiry-Time: N/A
+    # Has-Mailbox: false
+    # Mailbox-Enabled: true
+
+    r = subprocess.run(['dumpvuser', username], stdout=subprocess.PIPE)
+    r = str(r.stdout)
+
+    # get single attributes
+    r = r.split('\\n')
+
+    # get keys
+    entries = [e.split(' ', 1) for e in r]
+
+    # create dictionary
+    attributes = {key: value for (key, value) in entries}
 
 
 def main(args):
     # get all vmailmgr accounts listvdomain
-    get_vmailmgr_users()
+    username_list = get_vmailmgr_user_list()
+    print(repr(dump_vuser(username_list[0])))
+
     pass
     print(args.file)
     print(args.dir)
