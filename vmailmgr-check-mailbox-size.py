@@ -1,8 +1,6 @@
 import argparse
 import datetime
-import ntpath
 import os
-import re
 import subprocess
 import sys
 
@@ -10,19 +8,20 @@ import PathType
 
 
 def create_symlink(dest, message_file):
-    file_name = ntpath.basename(message_file.name)
-    os.symlink(message_file.name, os.path.join(dest, file_name))
+    print('Symlink created: ' + dest)
+    # file_name = ntpath.basename(message_file.name)
+    # os.symlink(message_file.name, os.path.join(dest, file_name))
 
 
-def get_directory_sizes(dir):
-    result = subprocess.run(['du -s ' + dir], shell=True, stdout=subprocess.PIPE)
-    p = re.compile(r'^[\s]+|([\w,\.]+)[\s]+(.+)$', re.MULTILINE)
-    output = result.stdout.decode('utf8')
-    matches = p.findall(output)
-    for index, (first, last) in enumerate(matches):
-        if first == '' or last == '' or not os.path.isdir(last):
-            matches.pop(index)
-    return matches
+# def get_directory_sizes(dir):
+#     result = subprocess.run(['du -s ' + dir], shell=True, stdout=subprocess.PIPE)
+#     p = re.compile(r'^[\s]+|([\w,\.]+)[\s]+(.+)$', re.MULTILINE)
+#     output = result.stdout.decode('utf8')
+#     matches = p.findall(output)
+#     for index, (first, last) in enumerate(matches):
+#         if first == '' or last == '' or not os.path.isdir(last):
+#             matches.pop(index)
+#     return matches
 
 
 def get_quota_sizes(dir):
@@ -35,9 +34,11 @@ def get_vmailmgr_user_list():
     # structure:
     # User Mailbox Aliases\n
     # timo Yes time@tester.de\n
-
+    
+    result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE)
     # split lines
-    result = str(result.stdout).split('\\n')
+    result = str(result.stdout)
+    result = result.split('\n')
     # split spaces
     result = [entry.split(' ') for entry in result]
     # get only users with mailbox
@@ -47,7 +48,7 @@ def get_vmailmgr_user_list():
     return result
 
 
-def dump_vuser(username):
+def get_vuser_info(username):
     # $dumpvuser admin
     # Name: admin
     # Encrypted-Password: *
@@ -66,41 +67,60 @@ def dump_vuser(username):
     r = (r.stdout.decode('utf8'))
     print(r)
     # get single attributes
-    r = r.split('\\n')
+    r = r.split('\n')
     r = [e for e in r if len(e) > 1]
-    print(r)
+    #print(r)
     # get keys
     entries = [e.split(' ', 1) for e in r]
-    print(entries)
-    s = ""
-    s.replace(':', '')
+    #print(entries)
     # create dictionary
     atts = {str(key.replace(':', '')): value for (key, value) in entries}
-    print(atts)
-    print(atts['Name'])
+
+    # convert numbers
+    fields_to_convert = ['Hard-Quota', 'Soft-Quota', 'Message-Size-Limit', 'Message-Count-Limit']
+    convert_fields_to_int(atts, fields_to_convert)
     return atts
+
+
+def convert_fields_to_int(dic, keys):
+    for key in keys:
+        dic[key] = convert_to_int(dic[key])
+
+
+def convert_to_int(val):
+    if val == "N/A":
+        val = -1
+    else:
+        val = int(val)
+    return val
 
 
 def main(args):
     # get all vmailmgr accounts listvdomain
     username_list = get_vmailmgr_user_list()
-    vuser = dump_vuser(username_list[0])
-    print(repr(vuser))
-    print(vuser['Hard-Quota'])
-
-    pass
-    print(args.file)
-    print(args.dir)
-    file = args.file[0]
-    dir_sizes = get_directory_sizes(args.dir[0])
-    user_quota_sizes = get_quota_sizes(args.dir[0])
-
-    user_dir_sizes_and_quota = [('', '', '')]
-    for (size, path, quota) in user_dir_sizes_and_quota:
-        if int(size) >= quota:
-            create_symlink(path, file)
-
+    for username in username_list:
+        user_info = get_vuser_info(username)
+        quota_exceeded = is_softquota_exceeded(user_info)
+        if (quota_exceeded):
+            directory = user_info['Directory']
+            create_symlink(directory, args.file)
     write_logfile()
+
+
+def get_folder_size(folder):
+    r = subprocess.run(['du -s ' + folder], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    err = r.stderr.decode('utf8')
+    if err:
+        print(err)
+        exit(1)
+    r = r.stdout.decode('utf8')
+    r = r.split('\t')
+    return int(r[0])
+
+
+def is_softquota_exceeded(user_info):
+    dir_size = get_folder_size(user_info['Directory'])
+    return dir_size > user_info['Soft-Quota']
 
 
 def write_logfile():
@@ -111,13 +131,7 @@ def write_logfile():
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
     parser = argparse.ArgumentParser(description='Help')
     parser.add_argument('-f', '--file', metavar='path', nargs=1, required=True, type=argparse.FileType('r'),
                         help='The file with the warning message')
-    parser.add_argument('-d', '--dir', metavar='dir', nargs=1, required=True,
-                        type=PathType.PathType(exists=True, type='dir'),
-                        help='The directory to count folder sizes from')
-    args = parser.parse_args(args)
-    print(args)
-    main(args)
+    main(parser.parse_args(sys.argv[1:]))
