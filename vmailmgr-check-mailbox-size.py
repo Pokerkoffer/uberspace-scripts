@@ -64,15 +64,18 @@ def dump_vuser(username):
 
     r = subprocess.run(['dumpvuser', username], stdout=subprocess.PIPE)
     r = str(r.stdout)
-
+    print(r)
     # get single attributes
     r = r.split('\\n')
     r = [e for e in r if len(e) > 1]
+    print(r)
     # get keys
     entries = [e.split(' ', 1) for e in r]
-
+    print(entries)
     # create dictionary
     attributes = {key: value for (key, value) in entries}
+    print(attributes)
+
     return attributes
 
 
