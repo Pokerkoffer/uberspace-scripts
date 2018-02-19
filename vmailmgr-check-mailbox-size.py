@@ -40,7 +40,7 @@ def get_vmailmgr_users():
 
 def main(args):
     # get all vmailmgr accounts listvdomain
-    get_vmailmgr_users()
+    get_vmailmgr_users()    
     pass
     print(args.file)
     print(args.dir)
