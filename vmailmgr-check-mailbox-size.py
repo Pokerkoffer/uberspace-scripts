@@ -62,8 +62,8 @@ def dump_vuser(username):
     # Has-Mailbox: false
     # Mailbox-Enabled: true
 
-    r = subprocess.run(['dumpvuser', username], stdout=subprocess.PIPE)
-    r = str(r.stdout)
+    r = subprocess.run(['dumpvuser', 'admin'], stdout=subprocess.PIPE)
+    r = (r.stdout.decode('utf8'))
     print(r)
     # get single attributes
     r = r.split('\\n')
@@ -84,7 +84,9 @@ def dump_vuser(username):
 def main(args):
     # get all vmailmgr accounts listvdomain
     username_list = get_vmailmgr_user_list()
-    print(repr(dump_vuser(username_list[0])))
+    vuser = dump_vuser(username_list[0])
+    print(repr(vuser))
+    print(vuser['Hard-Quota'])
 
     pass
     print(args.file)
