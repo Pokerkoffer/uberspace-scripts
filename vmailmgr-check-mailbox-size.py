@@ -13,7 +13,7 @@ def create_symlink(dest, message_file):
 
 
 def get_directory_sizes(dir):
-    result = subprocess.run(['du -s ' + dir], shell=True, stdout=subprocess.PIPE)
+    result = os.subprocess.run(['du -s ' + dir], shell=True, stdout=os.subprocess.PIPE)
     p = re.compile(r'^[\s]+|([\w,\.]+)[\s]+(.+)$', re.MULTILINE)
     output = result.stdout.decode('utf8')
     matches = p.findall(output)
@@ -30,8 +30,9 @@ def get_quota_sizes(dir):
 
 def get_vmailmgr_users():
     result = os.subprocess.run(['listvdomain'], stdout=os.subprocess.PIPE)
+    result = str(result.stdout).split('\\n')
     print(repr(result))
-    result = result.split('\t').split('\n')
+    result = result.split(' ')
     print(repr(result))
     result = result[0][0]
     print(repr(result))
@@ -40,7 +41,7 @@ def get_vmailmgr_users():
 
 def main(args):
     # get all vmailmgr accounts listvdomain
-    get_vmailmgr_users()    
+    get_vmailmgr_users()
     pass
     print(args.file)
     print(args.dir)
