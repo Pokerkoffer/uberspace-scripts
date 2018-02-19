@@ -141,7 +141,7 @@ def write_logfile():
     logfile.write(time)
 
 
-if __name__ == "__main__":„
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Help')
     parser.add_argument('-f', '--file', metavar='path', required=True, type=argparse.FileType('r'),
                         help='The file with the warning message')
