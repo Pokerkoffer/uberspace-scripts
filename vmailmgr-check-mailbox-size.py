@@ -34,7 +34,7 @@ def get_vmailmgr_user_list():
     # structure:
     # User Mailbox Aliases\n
     # timo Yes time@tester.de\n
-    
+
     result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE)
     # split lines
     result = str(result.stdout)
@@ -101,6 +101,7 @@ def main(args):
     for username in username_list:
         user_info = get_vuser_info(username)
         quota_exceeded = is_softquota_exceeded(user_info)
+        print("urrent user: " + user_info['Name'])
         if (quota_exceeded):
             directory = user_info['Directory']
             create_symlink(directory, args.file)
