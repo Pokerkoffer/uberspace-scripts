@@ -67,12 +67,13 @@ def dump_vuser(username):
 
     # get single attributes
     r = r.split('\\n')
-
+    r = [e for e in r if len(e) > 1]
     # get keys
     entries = [e.split(' ', 1) for e in r]
 
     # create dictionary
     attributes = {key: value for (key, value) in entries}
+    return attributes
 
 
 def main(args):
