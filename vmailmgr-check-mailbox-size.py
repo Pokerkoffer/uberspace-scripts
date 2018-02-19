@@ -104,13 +104,13 @@ def main(args):
     # get all vmailmgr accounts listvdomain
     username_list = get_vmailmgr_user_list()
     print("inmain")
-    print(username_list)
+    #print(username_list)
     for username in username_list:
         user_info = get_vuser_info(username)
-        print("userinfo:")
-        print(user_info)
-        print("dir:")
-        print(args.dir)
+     #   print("userinfo:")
+      #  print(user_info)
+       # print("dir:")
+        #print(args.dir)
         quota_exceeded = is_softquota_exceeded(user_info, args.dir)
         print("urrent user: " + user_info['Name'])
         if (quota_exceeded):
