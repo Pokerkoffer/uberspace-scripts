@@ -1,10 +1,10 @@
 import argparse
+import datetime
 import ntpath
 import os
 import re
-import sys
 import subprocess
-import datetime
+import sys
 
 import PathType
 
@@ -39,7 +39,7 @@ def get_vmailmgr_user_list():
     # split lines
     result = str(result.stdout).split('\\n')
     # split spaces
-    result = [entry.split(' ') for entry in result]    
+    result = [entry.split(' ') for entry in result]
     # get only users with mailbox
     result = [e for e in result if len(e) > 1 and e[1] == 'Yes']
     # get only names
@@ -72,11 +72,13 @@ def dump_vuser(username):
     # get keys
     entries = [e.split(' ', 1) for e in r]
     print(entries)
+    s = ""
+    s.replace(':', '')
     # create dictionary
-    attributes = {key: value for (key, value) in entries}
-    print(attributes)
-    print(attributes['Name'])
-    return attributes
+    atts = {str(key.replace(':', '')): value for (key, value) in entries}
+    print(atts)
+    print(atts['Name'])
+    return atts
 
 
 def main(args):
