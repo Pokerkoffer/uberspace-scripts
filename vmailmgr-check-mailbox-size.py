@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-
+import subprocess
 import datetime
 
 import PathType
@@ -29,7 +29,7 @@ def get_quota_sizes(dir):
 
 
 def get_vmailmgr_users():
-    result = os.subprocess.run(['listvdomain'], stdout=os.subprocess.PIPE)
+    result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE)
     result = str(result.stdout).split('\\n')
     print(repr(result))
     result = result.split(' ')
