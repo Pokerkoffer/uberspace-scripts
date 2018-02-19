@@ -106,7 +106,7 @@ def main(args):
     print(username_list)
     for username in username_list:
         user_info = get_vuser_info(username)
-        quota_exceeded = is_softquota_exceeded(user_info)
+        quota_exceeded = is_softquota_exceeded(user_info, args.dir)
         print("urrent user: " + user_info['Name'])
         if (quota_exceeded):
             directory = user_info['Directory']
@@ -125,8 +125,8 @@ def get_folder_size(folder):
     return int(r[0])
 
 
-def is_softquota_exceeded(user_info):
-    dir_size = get_folder_size(user_info['Directory'])
+def is_softquota_exceeded(user_info, user_dir_root):
+    dir_size = get_folder_size(os.path.join(user_dir_root, user_info['Directory']))
     return dir_size > user_info['Soft-Quota']
 
 
@@ -141,4 +141,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Help')
     parser.add_argument('-f', '--file', metavar='path', nargs=1, required=True, type=argparse.FileType('r'),
                         help='The file with the warning message')
+    parser.add_argument('-d', '--dir', metavar='dir', nargs=1, required=True,
+                        type=PathType.PathType(exists=True, type='dir'),
+                        help='The vmailmgrs user directory')
+
     main(parser.parse_args(sys.argv[1:]))
