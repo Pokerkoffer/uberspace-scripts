@@ -106,6 +106,8 @@ def main(args):
     print(username_list)
     for username in username_list:
         user_info = get_vuser_info(username)
+        print(user_info)
+        print(args.dir)
         quota_exceeded = is_softquota_exceeded(user_info, args.dir)
         print("urrent user: " + user_info['Name'])
         if (quota_exceeded):
@@ -126,6 +128,8 @@ def get_folder_size(folder):
 
 
 def is_softquota_exceeded(user_info, user_dir_root):
+    print(user_dir_root)
+    print(user_dir_root + user_info['Directory'])
     dir_size = get_folder_size(os.path.join(user_dir_root, user_info['Directory']))
     return dir_size > user_info['Soft-Quota']
 
