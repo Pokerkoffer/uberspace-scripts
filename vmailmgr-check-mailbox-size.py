@@ -86,8 +86,8 @@ class CheckMailboxSize:
         contents = contents.replace('${benutzer}', username)
         contents = contents.replace('${mail}', user_mail)
         contents = contents.replace('${prozent_voll}', percentage_used)
-        contents = contents.replace('${hard_quota_mb}', human_size(hard_quota_b))
-        contents = contents.replace('${mailboxgroesse_mb}', human_size(mailbox_size_b))
+        contents = contents.replace('${hard_quota}', human_size(hard_quota_b))
+        contents = contents.replace('${mailboxgroesse}', human_size(mailbox_size_b))
         print(contents)
         with open(dest_file, 'w') as outfile:
             outfile.writelines(contents)
