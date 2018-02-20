@@ -28,6 +28,10 @@ def list_directories(root_dir):
     return [entry for entry in dirs if os.path.isdir(os.path.join(root_dir, entry))]
 
 
+def convert_to_mb(size):
+    return str(round(size/1024/1024, 0))
+
+
 class CheckMailboxSize:
     def __init__(self, warning_message_file, users_dir):
         self.users_dir = users_dir
@@ -58,7 +62,7 @@ class CheckMailboxSize:
                 user_mail = username + '@yourhost.de'
                 user_hard_quota = user_info['Hard-Quota']
                 percentage_used = self.get_percentage_quota_used(dir_size, user_hard_quota)
-                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, dir_size)
+                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, convert_to_mb(dir_size))
 
     def init_logger(self):
         self.logger.setLevel(logging.DEBUG)
@@ -68,7 +72,7 @@ class CheckMailboxSize:
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
 
-    def write_mail(self, dest, username, user_mail, percentage_used, hard_quota, mailbox_size):
+    def write_mail(self, dest, username, user_mail, percentage_used, hard_quota_mb, mailbox_size_mb):
         # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
         file_name = ntpath.basename(self.warning_message_file.name)
         dest_file = os.path.join(dest, file_name)
@@ -78,8 +82,8 @@ class CheckMailboxSize:
         contents = contents.replace('${benutzer}', username)
         contents = contents.replace('${mail}', user_mail)
         contents = contents.replace('${prozent_voll}', percentage_used)
-        contents = contents.replace('${hard_quota_mb}', str(hard_quota))
-        contents = contents.replace('${mailboxgroesse_mb}', str(mailbox_size))
+        contents = contents.replace('${hard_quota_mb}', str(hard_quota_mb))
+        contents = contents.replace('${mailboxgroesse_mb}', str(mailbox_size_mb))
         print(contents)
         with open(dest_file, 'w') as outfile:
             outfile.writelines(contents)
