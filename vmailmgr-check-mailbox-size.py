@@ -37,7 +37,8 @@ def human_size(bytes, units=[' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']):
 
 
 class CheckMailboxSize:
-    def __init__(self, warning_message_file, users_dir):
+    def __init__(self, warning_message_file, users_dir, mail_host):
+        self.mail_host = mail_host
         self.users_dir = users_dir
         self.warning_message_file = warning_message_file
         self.logger = logging.getLogger('vmailmgr-check-mailbox')
@@ -63,11 +64,10 @@ class CheckMailboxSize:
             if quota_exceeded and user_info['Hard-Quota'] > -1:
                 self.logger.debug("user " + username + " has quota exceeded")
                 users_inbox_path = os.path.join(user_mailbox_dir, 'new')
-                user_mail = username + '@yourhost'
-                user_hard_quota = convert_b_to_mb(user_info['Hard-Quota'])
-                percentage_used = self.get_percentage_quota_used(dir_size_b, user_hard_quota)
-                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota,
-                                convert_b_to_mb(dir_size_b))
+                user_mail = username + '@' + self.mail_host
+                user_hard_quota_b = user_info['Hard-Quota']
+                percentage_used = self.get_percentage_quota_used(dir_size_b, user_hard_quota_b)
+                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota_b, dir_size_b)
 
     def init_logger(self):
         self.logger.setLevel(logging.DEBUG)
@@ -178,5 +178,8 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--dir', metavar='dir', required=True,
                         type=PathType.PathType(exists=True, type='dir'),
                         help='The vmailmgrs user directory')
+    parser.add_argument('-m', '--mailhost', metavar='prefix', required=True,
+                        type=PathType.PathType(exists=True, type='dir'),
+                        help='The host of your email (provider.de)')
     args = parser.parse_args(sys.argv[1:])
-    c = CheckMailboxSize(args.file, args.dir)
+    c = CheckMailboxSize(args.file, args.dir, args.mailhost)
