@@ -179,7 +179,7 @@ if __name__ == "__main__":
                         type=PathType.PathType(exists=True, type='dir'),
                         help='The vmailmgrs user directory')
     parser.add_argument('-m', '--mailhost', metavar='prefix', required=True,
-                        type=PathType.PathType(exists=True, type='dir'),
+                        type=str,
                         help='The host of your email (provider.de)')
     args = parser.parse_args(sys.argv[1:])
     c = CheckMailboxSize(args.file, args.dir, args.mailhost)
