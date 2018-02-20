@@ -73,12 +73,13 @@ class CheckMailboxSize:
         dest_file = os.path.join(dest, file_name)
 
         contents = self.warning_message_file.read()
+        print(contents)
         contents = contents.replace('$benutzer', username)
         contents = contents.replace('$benutzer_mail', user_mail)
         contents = contents.replace('$prozent_voll', percentage_used)
         contents = contents.replace('$hard_quota_mb', str(hard_quota))
         contents = contents.replace('$mailboxgroesse_mb', str(mailbox_size))
-
+        print(contents)
         with open(dest_file, 'w') as outfile:
             outfile.writelines(contents)
 
