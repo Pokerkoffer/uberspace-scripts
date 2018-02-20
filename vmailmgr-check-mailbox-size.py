@@ -30,6 +30,12 @@ def list_directories(root_dir):
 def convert_b_to_mb(size):
     return round(size / 1024 / 1024, 0)
 
+
+def human_size(bytes, units=[' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']):
+    """ Returns a human readable string reprentation of bytes"""
+    return str(bytes) + units[0] if bytes < 1024 else human_size(bytes >> 10, units[1:])
+
+
 class CheckMailboxSize:
     def __init__(self, warning_message_file, users_dir):
         self.users_dir = users_dir
@@ -59,8 +65,9 @@ class CheckMailboxSize:
                 users_inbox_path = os.path.join(user_mailbox_dir, 'new')
                 user_mail = username + '@yourhost'
                 user_hard_quota = convert_b_to_mb(user_info['Hard-Quota'])
-                percentage_used = self.get_percentage_quota_used(dir_size, user_hard_quota)
-                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, convert_kb_to_mb(dir_size))
+                percentage_used = self.get_percentage_quota_used(dir_size_b, user_hard_quota)
+                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota,
+                                convert_b_to_mb(dir_size_b))
 
     def init_logger(self):
         self.logger.setLevel(logging.DEBUG)
@@ -70,7 +77,7 @@ class CheckMailboxSize:
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
 
-    def write_mail(self, dest, username, user_mail, percentage_used, hard_quota_mb, mailbox_size_mb):
+    def write_mail(self, dest, username, user_mail, percentage_used, hard_quota_b, mailbox_size_b):
         # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
         file_name = ntpath.basename(self.warning_message_file.name)
         dest_file = os.path.join(dest, file_name)
@@ -79,8 +86,8 @@ class CheckMailboxSize:
         contents = contents.replace('${benutzer}', username)
         contents = contents.replace('${mail}', user_mail)
         contents = contents.replace('${prozent_voll}', percentage_used)
-        contents = contents.replace('${hard_quota_mb}', str(hard_quota_mb))
-        contents = contents.replace('${mailboxgroesse_mb}', str(mailbox_size_mb))
+        contents = contents.replace('${hard_quota_mb}', human_size(hard_quota_b))
+        contents = contents.replace('${mailboxgroesse_mb}', human_size(mailbox_size_b))
         print(contents)
         with open(dest_file, 'w') as outfile:
             outfile.writelines(contents)
