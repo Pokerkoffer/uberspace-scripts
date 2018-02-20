@@ -95,7 +95,7 @@ class CheckMailboxSize:
     def is_softquota_exceeded(self, user_info, user_dir_root):
         dir_size = self.get_folder_size(os.path.join(user_dir_root, user_info['Directory']))
         quota = user_info['Soft-Quota']
-        self.logger.debug('is_softquota_exceeded: ' + repr(user_info) + ' dirsize:' + dir_size)
+        self.logger.debug('is_softquota_exceeded: ' + repr(user_info) + ' dirsize:' + str(dir_size))
         return -1 < quota < dir_size
 
     def get_vuser_info(self, username):
