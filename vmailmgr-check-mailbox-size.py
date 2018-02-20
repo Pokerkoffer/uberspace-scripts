@@ -72,13 +72,13 @@ class CheckMailboxSize:
         file_name = ntpath.basename(self.warning_message_file.name)
         dest_file = os.path.join(dest, file_name)
 
-        with open(self.warning_message_file) as infile:
-            contents = infile.read()
-            contents = contents.replace('$benutzer', username)
-            contents = contents.replace('$benutzer_mail', user_mail)
-            contents = contents.replace('$prozent_voll', percentage_used)
-            contents = contents.replace('$hard_quota_mb', hard_quota)
-            contents = contents.replace('$mailboxgroesse_mb', mailbox_size)
+        contents = self.warning_message_file.read()
+        contents = contents.replace('$benutzer', username)
+        contents = contents.replace('$benutzer_mail', user_mail)
+        contents = contents.replace('$prozent_voll', percentage_used)
+        contents = contents.replace('$hard_quota_mb', hard_quota)
+        contents = contents.replace('$mailboxgroesse_mb', mailbox_size)
+
         with open(dest_file, 'w') as outfile:
             outfile.writelines(contents)
 
@@ -156,7 +156,7 @@ class CheckMailboxSize:
         return dic
 
     def get_percentage_quota_used(self, dir_size, hard_quota):
-        return str(round(dir_size/hard_quota * 100, 2))
+        return str(round(dir_size / hard_quota * 100, 2))
 
 
 if __name__ == "__main__":
