@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import logging
+import ntpath
 import os
 import subprocess
 import sys
@@ -59,9 +60,10 @@ class CheckMailboxSize:
         self.logger.addHandler(fh)
 
     def create_symlink(self, dest):
-        print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
-        # file_name = ntpath.basename(message_file.name)
-        # os.symlink(message_file.name, os.path.join(dest, file_name))
+        # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
+        file_name = ntpath.basename(self.warning_message_file.name)
+        os.symlink(self.warning_message_file.name, os.path.join(dest, file_name))
+        self.logger.debug("Symlink created: "+ repr(self.warning_message_file.name) + ' ' + dest)
 
     def get_vmailmgr_user_list(self):
         # structure:
