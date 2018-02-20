@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import time
 import logging
 import ntpath
 import os
@@ -80,7 +81,8 @@ class CheckMailboxSize:
     def write_mail(self, dest, username, user_mail, percentage_used, hard_quota_b, mailbox_size_b):
         # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
         file_name = ntpath.basename(self.warning_message_file.name)
-        dest_file = os.path.join(dest, file_name)
+        timestamp = str(int(time.time()))
+        dest_file = os.path.join(dest, timestamp, file_name)
 
         contents = self.warning_message_file.read()
         contents = contents.replace('${benutzer}', username)
