@@ -59,7 +59,7 @@ class CheckMailboxSize:
         self.logger.addHandler(fh)
 
     def create_symlink(self, dest):
-        print('Symlink created: ' + self.warning_message_file + ' ' + dest)
+        print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
         # file_name = ntpath.basename(message_file.name)
         # os.symlink(message_file.name, os.path.join(dest, file_name))
 
