@@ -28,8 +28,11 @@ def list_directories(root_dir):
     return [entry for entry in dirs if os.path.isdir(os.path.join(root_dir, entry))]
 
 
-def convert_to_mb(size):
+def convert_b_to_mb(size):
     return round(size/1024/1024, 0)
+
+def convert_kb_to_mb(size):
+    return round(size/1024, 0)
 
 
 class CheckMailboxSize:
@@ -59,10 +62,10 @@ class CheckMailboxSize:
             if quota_exceeded and user_info['Hard-Quota'] > -1:
                 self.logger.debug("user " + username + " has quota exceeded")
                 users_inbox_path = os.path.join(user_mailbox_dir, 'new')
-                user_mail = username + '@yourhost.de'
+                user_mail = username + '@yourhost'
                 user_hard_quota = user_info['Hard-Quota']
                 percentage_used = self.get_percentage_quota_used(dir_size, user_hard_quota)
-                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, convert_to_mb(dir_size))
+                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, convert_kb_to_mb(dir_size))
 
     def init_logger(self):
         self.logger.setLevel(logging.DEBUG)
@@ -78,7 +81,6 @@ class CheckMailboxSize:
         dest_file = os.path.join(dest, file_name)
 
         contents = self.warning_message_file.read()
-        print(contents)
         contents = contents.replace('${benutzer}', username)
         contents = contents.replace('${mail}', user_mail)
         contents = contents.replace('${prozent_voll}', percentage_used)
