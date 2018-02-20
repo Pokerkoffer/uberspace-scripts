@@ -75,7 +75,6 @@ class CheckMailboxSize:
 
         contents = self.warning_message_file.read()
         print(contents)
-        t = contents.format()
         contents = contents.replace('${benutzer}', username)
         contents = contents.replace('${mail}', user_mail)
         contents = contents.replace('${prozent_voll}', percentage_used)
