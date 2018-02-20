@@ -3,7 +3,6 @@ import datetime
 import logging
 import ntpath
 import os
-import string
 import subprocess
 import sys
 
@@ -29,11 +28,7 @@ def list_directories(root_dir):
 
 
 def convert_b_to_mb(size):
-    return round(size/1024/1024, 0)
-
-def convert_kb_to_mb(size):
-    return round(size/1024, 0)
-
+    return round(size / 1024 / 1024, 0)
 
 class CheckMailboxSize:
     def __init__(self, warning_message_file, users_dir):
@@ -56,14 +51,14 @@ class CheckMailboxSize:
             self.logger.debug("processing user: " + user_info['Name'])
 
             user_mailbox_dir = os.path.join(self.users_dir, user_info['Directory'])
-            dir_size = self.get_folder_size(user_mailbox_dir)
+            dir_size_b = self.get_folder_size_b(user_mailbox_dir)
 
-            quota_exceeded = self.is_softquota_exceeded(user_info['Soft-Quota'], dir_size)
+            quota_exceeded = self.is_softquota_exceeded(user_info['Soft-Quota'], dir_size_b)
             if quota_exceeded and user_info['Hard-Quota'] > -1:
                 self.logger.debug("user " + username + " has quota exceeded")
                 users_inbox_path = os.path.join(user_mailbox_dir, 'new')
                 user_mail = username + '@yourhost'
-                user_hard_quota = user_info['Hard-Quota']
+                user_hard_quota = convert_b_to_mb(user_info['Hard-Quota'])
                 percentage_used = self.get_percentage_quota_used(dir_size, user_hard_quota)
                 self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, convert_kb_to_mb(dir_size))
 
@@ -114,7 +109,7 @@ class CheckMailboxSize:
         r = [e[0] for e in r]
         return r
 
-    def get_folder_size(self, folder):
+    def get_folder_size_b(self, folder):
         r = subprocess.run(['du -s ' + folder], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err = r.stderr.decode('utf8')
         if err:
@@ -122,7 +117,7 @@ class CheckMailboxSize:
             exit(1)
         r = r.stdout.decode('utf8')
         r = r.split('\t')
-        return int(r[0])
+        return int(r[0]) * 1000
 
     def is_softquota_exceeded(self, quota, dir_size):
         self.logger.debug('is_softquota_exceeded: quota:' + str(quota) + ' dirsize:' + str(dir_size))
