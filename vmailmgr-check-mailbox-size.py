@@ -40,7 +40,7 @@ class CheckMailboxSize:
     def check_mailboxes(self):
         username_list = self.get_vmailmgr_user_list()
         for username in username_list:
-            user_info = get_vuser_info(username)
+            user_info = self.get_vuser_info(username)
             self.logger.debug("processing user: " + user_info['Name'])
             quota_exceeded = self.is_softquota_exceeded(user_info, args.dir)
             if quota_exceeded:
