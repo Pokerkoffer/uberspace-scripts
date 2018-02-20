@@ -3,6 +3,7 @@ import datetime
 import logging
 import ntpath
 import os
+import string
 import subprocess
 import sys
 
@@ -51,7 +52,7 @@ class CheckMailboxSize:
             dir_size = self.get_folder_size(user_mailbox_dir)
 
             quota_exceeded = self.is_softquota_exceeded(user_info['Soft-Quota'], dir_size)
-            if quota_exceeded:
+            if quota_exceeded and user_info['Hard-Quota'] > -1:
                 self.logger.debug("user " + username + " has quota exceeded")
                 users_inbox_path = os.path.join(user_mailbox_dir, 'new')
                 user_mail = username + '@yourhost.de'
@@ -74,8 +75,9 @@ class CheckMailboxSize:
 
         contents = self.warning_message_file.read()
         print(contents)
+        t = contents.format()
         contents = contents.replace('$benutzer', username)
-        contents = contents.replace('$benutzer_mail', user_mail)
+        contents = contents.replace('$mail', user_mail)
         contents = contents.replace('$prozent_voll', percentage_used)
         contents = contents.replace('$hard_quota_mb', str(hard_quota))
         contents = contents.replace('$mailboxgroesse_mb', str(mailbox_size))
@@ -157,6 +159,8 @@ class CheckMailboxSize:
         return dic
 
     def get_percentage_quota_used(self, dir_size, hard_quota):
+        if dir_size > hard_quota:
+            return '100'
         return str(round(dir_size / hard_quota * 100, 2))
 
 
