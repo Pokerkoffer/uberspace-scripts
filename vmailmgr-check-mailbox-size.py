@@ -29,7 +29,7 @@ def list_directories(root_dir):
 
 
 def convert_to_mb(size):
-    return str(round(size/1024/1024, 0))
+    return round(size/1024/1024, 0)
 
 
 class CheckMailboxSize:
