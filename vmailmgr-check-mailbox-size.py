@@ -35,6 +35,7 @@ class CheckMailboxSize:
         now = datetime.datetime.now()
         time = now.strftime("%d.%m.%Y %H:%M:%S")
         self.logger.debug('Initialized ' + time)
+        self.check_mailboxes()
 
     def check_mailboxes(self):
         username_list = self.get_vmailmgr_user_list()
