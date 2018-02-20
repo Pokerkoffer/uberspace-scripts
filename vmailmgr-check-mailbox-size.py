@@ -49,7 +49,7 @@ class CheckMailboxSize:
             if quota_exceeded:
                 self.logger.debug("user " + username + " has quota exceeded")
                 directory = user_info['Directory']
-                self.create_symlink(directory)
+                self.create_symlink(os.path.join(self.users_dir, directory))
 
     def init_logger(self):
         self.logger.setLevel(logging.DEBUG)
@@ -63,7 +63,7 @@ class CheckMailboxSize:
         # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
         file_name = ntpath.basename(self.warning_message_file.name)
         os.symlink(self.warning_message_file.name, os.path.join(dest, file_name))
-        self.logger.debug("Symlink created: "+ repr(self.warning_message_file.name) + ' ' + dest)
+        self.logger.debug("Symlink created: " + repr(self.warning_message_file.name) + ' ' + dest)
 
     def get_vmailmgr_user_list(self):
         # structure:
