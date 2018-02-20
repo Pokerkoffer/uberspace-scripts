@@ -97,7 +97,7 @@ class CheckMailboxSize:
         self.logger.debug('is_softquota_exceeded: ' + user_info + ' dirsize:' + dir_size)
         return -1 < quota < dir_size
 
-    def get_vuser_info(username):
+    def get_vuser_info(self, username):
         # $dumpvuser admin
         # Name: admin
         # Encrypted-Password: *
