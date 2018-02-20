@@ -31,7 +31,6 @@ def get_quota_sizes(dir):
 
 
 def get_vmailmgr_user_list():
-    result = subprocess.run(['listvdomain'], stdout=subprocess.PIPE)
     # structure:
     # User Mailbox Aliases\n
     # timo Yes time@tester.de\n
@@ -42,7 +41,7 @@ def get_vmailmgr_user_list():
         print(err)
         exit(1)
     # split lines
-    result = str(result.stdout)
+    result = result.stdout.decode('utf8')
     result = result.split('\n')
     # split spaces
     result = [entry.split(' ') for entry in result]
@@ -69,15 +68,12 @@ def get_vuser_info(username):
     # Mailbox-Enabled: true
 
     r = subprocess.run(['dumpvuser', username], stdout=subprocess.PIPE)
-    r = (r.stdout.decode('utf8'))
-    print(r)
+    r = r.stdout.decode('utf8')
     # get single attributes
     r = r.split('\n')
     r = [e for e in r if len(e) > 1]
-    #print(r)
     # get keys
     entries = [e.split(' ', 1) for e in r]
-    #print(entries)
     # create dictionary
     dic = {str(key.replace(':', '')): value for (key, value) in entries}
 
