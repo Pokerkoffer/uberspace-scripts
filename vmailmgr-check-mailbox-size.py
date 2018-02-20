@@ -168,7 +168,7 @@ class CheckMailboxSize:
     def get_percentage_quota_used(self, dir_size, hard_quota):
         if dir_size > hard_quota:
             return '100'
-        return str(round(dir_size / hard_quota * 100, 2))
+        return str(round(dir_size / hard_quota * 100, 1))
 
 
 if __name__ == "__main__":
