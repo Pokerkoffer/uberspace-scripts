@@ -42,14 +42,22 @@ class CheckMailboxSize:
 
     def check_mailboxes(self):
         username_list = self.get_vmailmgr_user_list()
+
         for username in username_list:
             user_info = self.get_vuser_info(username)
             self.logger.debug("processing user: " + user_info['Name'])
-            quota_exceeded = self.is_softquota_exceeded(user_info, args.dir)
+
+            user_mailbox_dir = os.path.join(self.users_dir, user_info['Directory'])
+            dir_size = self.get_folder_size(user_mailbox_dir)
+
+            quota_exceeded = self.is_softquota_exceeded(user_info['Soft-Quota'], dir_size)
             if quota_exceeded:
                 self.logger.debug("user " + username + " has quota exceeded")
-                directory = user_info['Directory']
-                self.create_symlink(os.path.join(self.users_dir, directory))
+                users_inbox_path = os.path.join(user_mailbox_dir, 'new')
+                user_mail = username + '@yourhost.de'
+                user_hard_quota = user_info['Hard-Quota']
+                percentage_used = self.get_percentage_quota_used(dir_size, user_hard_quota)
+                self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota, dir_size)
 
     def init_logger(self):
         self.logger.setLevel(logging.DEBUG)
@@ -59,11 +67,23 @@ class CheckMailboxSize:
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
 
-    def create_symlink(self, dest):
+    def write_mail(self, dest, username, user_mail, percentage_used, hard_quota, mailbox_size):
         # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
         file_name = ntpath.basename(self.warning_message_file.name)
-        os.symlink(self.warning_message_file.name, os.path.join(dest, file_name))
-        self.logger.debug("Symlink created: " + repr(self.warning_message_file.name) + ' ' + dest)
+        dest_file = os.path.join(dest, file_name)
+
+        with open(self.warning_message_file) as infile:
+            contents = infile.read()
+            contents = contents.replace('$benutzer', username)
+            contents = contents.replace('$benutzer_mail', user_mail)
+            contents = contents.replace('$prozent_voll', percentage_used)
+            contents = contents.replace('$hard_quota_mb', hard_quota)
+            contents = contents.replace('$mailboxgroesse_mb', mailbox_size)
+        with open(dest_file, 'w') as outfile:
+            outfile.writelines(contents)
+
+        # os.symlink(self.warning_message_file.name, dest_file)
+        self.logger.debug("Warning mail written: " + repr(self.warning_message_file.name) + ' ' + dest_file)
 
     def get_vmailmgr_user_list(self):
         # structure:
@@ -96,9 +116,7 @@ class CheckMailboxSize:
         r = r.split('\t')
         return int(r[0])
 
-    def is_softquota_exceeded(self, user_info, user_dir_root):
-        dir_size = self.get_folder_size(os.path.join(user_dir_root, user_info['Directory']))
-        quota = user_info['Soft-Quota']
+    def is_softquota_exceeded(self, quota, dir_size):
         self.logger.debug('is_softquota_exceeded: quota:' + str(quota) + ' dirsize:' + str(dir_size))
         return -1 < quota < dir_size
 
@@ -136,6 +154,9 @@ class CheckMailboxSize:
         convert_fields_to_int(dic, fields_to_convert)
         dic['Directory'] = os.path.basename(dic['Directory'])
         return dic
+
+    def get_percentage_quota_used(self, dir_size, hard_quota):
+        return str(round(dir_size/hard_quota * 100, 2))
 
 
 if __name__ == "__main__":
