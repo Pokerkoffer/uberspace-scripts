@@ -1,11 +1,11 @@
 import argparse
 import datetime
-import time
 import logging
 import ntpath
 import os
 import subprocess
 import sys
+import time
 
 import PathType
 
@@ -37,6 +37,12 @@ def human_size(bytes, units=[' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']):
     return str(bytes) + units[0] if bytes < 1024 else human_size(bytes >> 10, units[1:])
 
 
+def get_percentage_quota_used(dir_size, hard_quota):
+    if dir_size > hard_quota:
+        return '100'
+    return str(round(dir_size / hard_quota * 100, 1))
+
+
 class CheckMailboxSize:
     def __init__(self, warning_message_file, users_dir, mail_host):
         self.mail_host = mail_host
@@ -45,8 +51,7 @@ class CheckMailboxSize:
         self.logger = logging.getLogger('vmailmgr-check-mailbox')
         self.init_logger()
         now = datetime.datetime.now()
-        time = now.strftime("%d.%m.%Y %H:%M:%S")
-        self.logger.debug('Initialized ' + time)
+        self.logger.debug('Initialized ' + now.strftime("%d.%m.%Y %H:%M:%S"))
         self.check_mailboxes()
         self.logger.debug("Run successful exiting...")
         self.logger.debug("\n")
@@ -67,7 +72,7 @@ class CheckMailboxSize:
                 users_inbox_path = os.path.join(user_mailbox_dir, 'new')
                 user_mail = username + '@' + self.mail_host
                 user_hard_quota_b = user_info['Hard-Quota']
-                percentage_used = self.get_percentage_quota_used(dir_size_b, user_hard_quota_b)
+                percentage_used = get_percentage_quota_used(dir_size_b, user_hard_quota_b)
                 self.write_mail(users_inbox_path, username, user_mail, percentage_used, user_hard_quota_b, dir_size_b)
 
     def init_logger(self):
@@ -80,9 +85,9 @@ class CheckMailboxSize:
 
     def write_mail(self, dest, username, user_mail, percentage_used, hard_quota_b, mailbox_size_b):
         # print('Symlink created: ' + repr(self.warning_message_file) + ' ' + dest)
-        file_name = ntpath.basename(self.warning_message_file.name)
         timestamp = str(int(time.time()))
-        dest_file = os.path.join(dest, timestamp, file_name)
+        file_name = timestamp + ntpath.basename(self.warning_message_file.name)
+        dest_file = os.path.join(dest, file_name)
 
         contents = self.warning_message_file.read()
         contents = contents.replace('${benutzer}', username)
@@ -90,12 +95,12 @@ class CheckMailboxSize:
         contents = contents.replace('${prozent_voll}', percentage_used)
         contents = contents.replace('${hard_quota}', human_size(hard_quota_b))
         contents = contents.replace('${mailboxgroesse}', human_size(mailbox_size_b))
-        print(contents)
+
         with open(dest_file, 'w') as outfile:
             outfile.writelines(contents)
 
         # os.symlink(self.warning_message_file.name, dest_file)
-        self.logger.debug("Warning mail written: " + repr(self.warning_message_file.name) + ' ' + dest_file)
+        self.logger.debug("Warning mail written: " + dest_file)
 
     def get_vmailmgr_user_list(self):
         # structure:
@@ -166,11 +171,6 @@ class CheckMailboxSize:
         convert_fields_to_int(dic, fields_to_convert)
         dic['Directory'] = os.path.basename(dic['Directory'])
         return dic
-
-    def get_percentage_quota_used(self, dir_size, hard_quota):
-        if dir_size > hard_quota:
-            return '100'
-        return str(round(dir_size / hard_quota * 100, 1))
 
 
 if __name__ == "__main__":
